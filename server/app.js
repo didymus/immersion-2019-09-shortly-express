@@ -73,6 +73,55 @@ app.post('/links', (req, res, next) => {
 // Write your authentication routes here
 /************************************************************/
 
+app.get('/signup', (req, res) => {
+  res.render('signup');
+});
+
+app.post('/signup', (req, res) => {
+  // register user for a new account
+  const username = req.body.username;
+  const password = req.body.password;
+  Users.create({
+    username,
+    password,
+  })
+    .then(() => {
+      // then redirect to '/'
+      res.render('index');
+    })
+    .catch(() => {
+      // if user is already signed up redirect back to '/signup'
+      res.render('signup'); // FIXME: possible fix later on to redirect to login instead
+    });
+
+});
+
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+app.post('/login', (req, res) => {
+  // compare passed in credentials
+  const username = req.body.username;
+  const attemptedPass = req.body.password;
+  Users.get({
+    username,
+  })
+    .then((userData) => {
+      console.log(userData);
+      // check if user data exists and if the passwords pass
+      if (userData && Users.compare(attemptedPass, userData.password, userData.salt)) {
+        // then redirect to '/'
+        res.render('index');
+      } else {
+        // if user does not exist or incorrect credentials are passed -> redirect to '/login'
+        res.render('login');
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
