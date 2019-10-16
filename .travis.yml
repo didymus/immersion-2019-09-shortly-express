@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+  - '8'
+services:
+  - mysql
+env:
+  global:
+    - NODE_ENV="test"
+    - 'TEST_SERVER="https://hallebot.operationspark.org"'
+    - OWNER=`echo $TRAVIS_REPO_SLUG | cut -d '/' -f 1`
+    - REPO=`echo $TRAVIS_REPO_SLUG | cut -d '/' -f 2`
+    - 'CODE_DIR=`if [[ $REPO == "course."* ]]; then echo "code"; else echo "."; fi`'
+before_install:
+  - echo $REPO
+  - echo $CODE_DIR
+install:
+  - yarn --cwd $CODE_DIR/
+  - yarn --cwd $CODE_DIR/.ci/
+  - 'PATH=$PATH:./node_modules/.bin'
+  - 'PATH=$PATH:../node_modules/.bin'
+script:
+  - '[[ "$OWNER" == "OperationSpark" ]]'
+  - curl --silent --output $CODE_DIR/_test.js $TEST_SERVER/scripts/test.js
+  - node $CODE_DIR/_test.js $REPO $TEST_SERVER $CODE_DIR
+notifications:
+  webhooks: 'https://greenlight.operationspark.org/api/v2/webhooks/travisci'
