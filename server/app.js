@@ -73,11 +73,11 @@ app.post('/links', (req, res, next) => {
 // Write your authentication routes here
 /************************************************************/
 
-app.get('/signup', (req, res) => {
+app.get('/signup', cookieParser, createSession, (req, res) => {
   res.render('signup');
 });
 
-app.post('/signup', (req, res) => {
+app.post('/signup', cookieParser, (req, res) => {
   // register user for a new account
   const username = req.body.username;
   const password = req.body.password;
@@ -96,11 +96,11 @@ app.post('/signup', (req, res) => {
 
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', cookieParser, (req, res) => {
   res.render('login');
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', cookieParser, (req, res) => {
   // compare passed in credentials
   const username = req.body.username;
   const attemptedPass = req.body.password;
@@ -108,7 +108,6 @@ app.post('/login', (req, res) => {
     username,
   })
     .then((userData) => {
-      console.log(userData);
       // check if user data exists and if the passwords pass
       if (userData && Users.compare(attemptedPass, userData.password, userData.salt)) {
         // then redirect to '/'
