@@ -39,8 +39,12 @@ const createSession = (req, res, next) => {
 // Add additional authentication middleware functions below //
 
 const verifySession = (req, res, next) => {
-
-  next();
+  if (req.session.userId === null) {
+    res.setHeader('Location', '/login');
+    res.render('login');
+  } else {
+    next();
+  }
 };
 
 

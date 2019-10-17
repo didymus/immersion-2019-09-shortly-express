@@ -19,39 +19,24 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/__docs', express.static(path.join(__dirname, '../docs')));
 
 
-app.get('/', cookieParser, createSession, (req, res) => {
+app.get('/', cookieParser, createSession, verifySession, (req, res) => {
   // if current session not attached to a user redirect to login
-  if (req.session.userId === null) {
-    res.setHeader('Location', '/login');
-    res.render('login');
-  } else {
-    res.render('index');
-  }
+  res.render('index');
 });
 
-app.get('/create', cookieParser, createSession, (req, res) => {
-  if (req.session.userId === null) {
-    res.setHeader('Location', '/login');
-    res.render('login');
-  } else {
-    res.render('index');
-  }
+app.get('/create', cookieParser, createSession, verifySession, (req, res) => {
+  res.render('index');
 });
 
-app.get('/links', cookieParser, createSession, (req, res, next) => {
-  if (req.session.userId === null) {
-    res.setHeader('Location', '/login');
-    res.render('login');
-  } else {
-    Links.getAll()
-      .then((links) => {
-        res.status(200).send(links);
-      })
-      .catch((error) => {
-        console.error('Failed to get links', error);
-        res.sendStatus(500);
-      });
-  }
+app.get('/links', cookieParser, createSession, verifySession, (req, res, next) => {
+  Links.getAll()
+    .then((links) => {
+      res.status(200).send(links);
+    })
+    .catch((error) => {
+      console.error('Failed to get links', error);
+      res.sendStatus(500);
+    });
 });
 
 app.post('/links', (req, res, next) => {
