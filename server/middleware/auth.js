@@ -21,17 +21,18 @@ const createSession = (req, res, next) => {
         next();
       })
       .catch(() => {
-        return models.Sessions.create();
-      })
-      .then((insertResults) => {
-        return models.Sessions.get({id: insertResults.insertId});
-      })
-      .then((sessionData) => {
-        req.session = sessionData;
-        res.cookie('shortlyid', sessionData.hash);
-        next();
-      })
-      .catch(err => console.error(err));
+        models.Sessions.create()
+          .then((insertResults) => {
+            const options = {id: insertResults.insertId};
+            return models.Sessions.get(options);
+          })
+          .then((sessionData) => {
+            req.session = sessionData;
+            res.cookie('shortlyid', sessionData.hash);
+            next();
+          })
+          .catch(err => console.error(err));
+      });
   }
 };
 
