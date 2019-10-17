@@ -17,21 +17,25 @@ const createSession = (req, res, next) => {
   } else { // if we have cookies
     models.Sessions.get({hash: cookies.shortlyid})
       .then((sessionData) => {
-        req.session = sessionData;
-        next();
+        if (sessionData) {
+          req.session = sessionData;
+          next();
+        } else {
+          models.Sessions.create()
+            .then((insertResults) => {
+              const options = {id: insertResults.insertId};
+              return models.Sessions.get(options);
+            })
+            .then((sessionData) => {
+              req.session = sessionData;
+              res.cookie('shortlyid', sessionData.hash);
+              next();
+            })
+            .catch(err => console.error(err));
+        }
       })
-      .catch(() => {
-        models.Sessions.create()
-          .then((insertResults) => {
-            const options = {id: insertResults.insertId};
-            return models.Sessions.get(options);
-          })
-          .then((sessionData) => {
-            req.session = sessionData;
-            res.cookie('shortlyid', sessionData.hash);
-            next();
-          })
-          .catch(err => console.error(err));
+      .catch((err) => {
+        console.error(err);
       });
   }
 };
@@ -39,8 +43,13 @@ const createSession = (req, res, next) => {
 // Add additional authentication middleware functions below //
 
 const verifySession = (req, res, next) => {
-
-  next();
+  console.log(req.path);
+  if (req.session.userId === null) {
+    res.setHeader('Location', '/login');
+    res.render('login');
+  } else {
+    next();
+  }
 };
 
 
