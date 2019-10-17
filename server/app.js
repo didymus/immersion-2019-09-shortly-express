@@ -134,6 +134,14 @@ app.post('/login', cookieParser, (req, res) => {
     });
 });
 
+app.get('/logout', cookieParser, (req, res) => {
+  // reassign shortlyid cookie to null
+  res.cookie('shortlyid', null);
+  // delete session from database
+  Sessions.delete({hash: req.cookies.shortlyid});
+  res.render('index');
+});
+
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
