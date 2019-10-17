@@ -73,7 +73,7 @@ app.post('/links', (req, res, next) => {
 // Write your authentication routes here
 /************************************************************/
 
-app.get('/signup', cookieParser, createSession, (req, res) => {
+app.get('/signup', cookieParser, (req, res) => {
   res.render('signup');
 });
 
@@ -87,10 +87,12 @@ app.post('/signup', cookieParser, (req, res) => {
   })
     .then(() => {
       // then redirect to '/'
+      res.setHeader('Location', '/');
       res.render('index');
     })
     .catch(() => {
       // if user is already signed up redirect back to '/signup'
+      res.setHeader('Location', '/signup');
       res.render('signup'); // FIXME: possible fix later on to redirect to login instead
     });
 
@@ -111,9 +113,11 @@ app.post('/login', cookieParser, (req, res) => {
       // check if user data exists and if the passwords pass
       if (userData && Users.compare(attemptedPass, userData.password, userData.salt)) {
         // then redirect to '/'
+        res.setHeader('Location', '/');
         res.render('index');
       } else {
         // if user does not exist or incorrect credentials are passed -> redirect to '/login'
+        res.setHeader('Location', '/login');
         res.render('login');
       }
     })
