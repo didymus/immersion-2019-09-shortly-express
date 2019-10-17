@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/__docs', express.static(path.join(__dirname, '../docs')));
 
 
-app.get('/', (req, res) => {
+app.get('/', cookieParser, createSession, (req, res) => {
   res.render('index');
 });
 
@@ -77,7 +77,7 @@ app.get('/signup', cookieParser, (req, res) => {
   res.render('signup');
 });
 
-app.post('/signup', cookieParser, (req, res) => {
+app.post('/signup', cookieParser, createSession, (req, res) => {
   // register user for a new account
   const username = req.body.username;
   const password = req.body.password;
@@ -85,10 +85,18 @@ app.post('/signup', cookieParser, (req, res) => {
     username,
     password,
   })
-    .then(() => {
-      // then redirect to '/'
-      res.setHeader('Location', '/');
-      res.render('index');
+    .then((userData) => {
+      // update current session to include user id
+      Sessions.update({
+        hash: req.session.hash,
+      }, {
+        userId: userData.insertId,
+      })
+        .then((updateData) => {
+          // then redirect to '/'
+          res.setHeader('Location', '/');
+          res.render('index');
+        });
     })
     .catch(() => {
       // if user is already signed up redirect back to '/signup'
