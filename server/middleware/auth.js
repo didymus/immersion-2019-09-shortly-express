@@ -20,6 +20,17 @@ const createSession = (req, res, next) => {
         req.session = sessionData;
         next();
       })
+      .catch(() => {
+        return models.Sessions.create();
+      })
+      .then((insertResults) => {
+        return models.Sessions.get({id: insertResults.insertId});
+      })
+      .then((sessionData) => {
+        req.session = sessionData;
+        res.cookie('shortlyid', sessionData.hash);
+        next();
+      })
       .catch(err => console.error(err));
   }
 };
