@@ -140,7 +140,7 @@ app.get('/logout', cookieParser, (req, res) => {
   res.cookie('shortlyid', null);
   // delete session from database
   Sessions.delete({hash: req.cookies.shortlyid});
-  res.render('index');
+  res.render('login');
 });
 
 /************************************************************/
